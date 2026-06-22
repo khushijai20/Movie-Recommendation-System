@@ -177,12 +177,14 @@ export default function App() {
   const [recommendations, setRecommendations] = useState<RecommendationResult[]>([]);
   const [isComputing, setIsComputing] = useState<boolean>(false);
   const [showMathInspector, setShowMathInspector] = useState<boolean>(false);
+  const [showTuning, setShowTuning] = useState<boolean>(false);
 
   // User state bookmarks & play histories
   const [bookmarkedIds, setBookmarkedIds] = useState<number[]>([3, 4]); // Prefilled bookmarks
   const [recentViewedIds, setRecentViewedIds] = useState<number[]>([1, 2]); // Prefilled view stats
   const [activeMediaService, setActiveMediaService] = useState<string>("Netflix");
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<string>("Movies");
+  const [activeSubscriptionTier, setActiveSubscriptionTier] = useState<string>("Ultra Premium 4K");
 
   // Trailer interactive simulator overlay modal
   const [activeTrailerName, setActiveTrailerName] = useState<string | null>(null);
@@ -344,11 +346,51 @@ export default function App() {
     overview: "Fetching content catalog..."
   };
 
-  // Search filter
-  const filteredCatalog = movies.filter(m => 
-    m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    m.genres.some(g => g.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  // Get streaming platforms for a movie to connect search filters with sidebar service partner choices
+  const getMovieServices = (movieId: number): string[] => {
+    switch(movieId) {
+      case 1: case 13: return ["disney", "apple", "prime"];
+      case 2: return ["disney", "prime"];
+      case 3: return ["prime", "hbo"];
+      case 4: case 6: return ["netflix", "hbo"];
+      case 5: return ["peacock", "hulu"];
+      case 7: case 8: case 9: return ["disney"];
+      case 10: return ["peacock"];
+      case 11: return ["apple", "prime"];
+      case 12: return ["hulu", "prime", "netflix"];
+      default:
+        const mod = movieId % 5;
+        if (mod === 0) return ["netflix", "apple"];
+        if (mod === 1) return ["disney", "prime"];
+        if (mod === 2) return ["hbo", "netflix"];
+        if (mod === 3) return ["peacock", "hulu"];
+        return ["prime", "apple"];
+    }
+  };
+
+  // Search, Media Service and Category Filter (Simple & Scalable UX)
+  const filteredCatalog = movies.filter(m => {
+    // 1. Text Search Filter
+    const matchesSearch = m.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          m.genres.some(g => g.toLowerCase().includes(searchQuery.toLowerCase()));
+    if (!matchesSearch) return false;
+
+    // 2. Category Filter (Movies, Series, TV Shows, Animations, Plans)
+    if (activeCategoryFilter === "Animations") {
+      if (!m.genres.includes("Animation")) return false;
+    } else if (activeCategoryFilter === "Series" || activeCategoryFilter === "TV Shows") {
+      // Simulate series representation
+      if (m.id % 2 !== 0) return false;
+    }
+
+    // 3. Media Service Platform Filter
+    if (activeMediaService) {
+      const services = getMovieServices(m.id);
+      if (!services.includes(activeMediaService.toLowerCase())) return false;
+    }
+
+    return true;
+  });
 
   // Profile metadata
   const userNickname = "Khushi Jain";
@@ -662,6 +704,26 @@ export default function App() {
           {/* Quick Right utility icons exactly like mockup */}
           <div className="flex items-center space-x-4">
             
+            {/* Elegant Top Navigation Search Input */}
+            <div className="relative w-44 md:w-56 lg:w-64">
+              <span className="absolute inset-y-0 left-3 flex items-center text-zinc-500 pointer-events-none">
+                <Search size={13} />
+              </span>
+              <input 
+                ref={searchInputRef}
+                type="text" 
+                placeholder="Search movies, genres..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-[#111112] border border-zinc-900 hover:border-zinc-800 focus:border-[#FF2732] rounded-full py-1.5 pl-8.5 pr-12 text-xs text-white placeholder-zinc-500 focus:outline-none transition-colors font-sans"
+              />
+              <span className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                <kbd className="bg-zinc-950/80 border border-zinc-900 text-zinc-500 text-[8px] px-1 rounded font-mono font-bold leading-none select-none">
+                  Ctrl+K
+                </kbd>
+              </span>
+            </div>
+            
             {/* Live broadcast microindicator */}
             <div className="flex items-center space-x-1 text-[11px] text-zinc-400 hover:text-white transition-colors cursor-pointer" title="Active live node status">
               <Radio size={14} className="text-[#FF2732] animate-pulse" />
@@ -695,6 +757,116 @@ export default function App() {
           {/* TAB 1: RECOMMEND (HOME DASHBOARD VIEW) */}
           {activeTab === "recommend" && (
             <div className="space-y-8 animate-fade-in" id="recommendations-view">
+              {activeCategoryFilter === "Plans" ? (
+                <div className="space-y-8 animate-fade-in py-4" id="plans-selection-view">
+                  <div className="text-center max-w-2xl mx-auto space-y-3">
+                    <span className="text-[10px] bg-[#FF2732]/10 text-[#FF2732] font-mono font-bold px-3 py-1 rounded-full uppercase tracking-widest">
+                      MEMBERSHIP PLANS
+                    </span>
+                    <h2 className="text-2xl font-black text-white font-display">
+                      Select Your AI Movie Streaming Tier
+                    </h2>
+                    <p className="text-xs text-zinc-405">
+                      Instantly toggle between computing capabilities, spatial resolutions, and movie recommendation engines. No hidden fees. Cancel anytime.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto pt-6">
+                    {[
+                      {
+                        name: "Basic Slate",
+                        price: "$9.99",
+                        status: "SD Resolution",
+                        screens: "1 Active Screen",
+                        engine: "Standard Cosine Aligner",
+                        audio: "Stereo 2.0 Audio",
+                        isBest: false,
+                        color: "border-[#141414] bg-[#0B0B0C]",
+                        btnColor: "bg-zinc-900 text-white hover:bg-zinc-800"
+                      },
+                      {
+                        name: "Standard HD",
+                        price: "$15.49",
+                        status: "1080p Full HD",
+                        screens: "2 Active Screens",
+                        engine: "Advanced Spatial Cosine Sim",
+                        audio: "Dolby Atmos Premium",
+                        isBest: false,
+                        color: "border-[#141414] bg-[#0B0B0C]",
+                        btnColor: "bg-zinc-900 text-white hover:bg-zinc-800"
+                      },
+                      {
+                        name: "Ultra Premium 4K",
+                        price: "$19.99",
+                        status: "4K UHD + HDR",
+                        screens: "4 Active Screens",
+                        engine: "Full TF-IDF Matrix Vector suite & AI Assistants",
+                        audio: "Spatial Vector 3D Audio",
+                        isBest: true,
+                        color: "border-[#FF2732]/40 bg-gradient-to-b from-[#1b1011] to-[#0A0A0B] relative overflow-hidden",
+                        btnColor: "bg-[#FF2732] text-white hover:bg-[#ff1e2a]"
+                      }
+                    ].map((tier) => {
+                      const isActivePlan = activeSubscriptionTier === tier.name;
+                      return (
+                        <div 
+                          key={tier.name}
+                          className={`border rounded-2xl p-6 flex flex-col justify-between transition-all duration-300 hover:scale-[1.01] ${tier.color} ${isActivePlan ? 'ring-2 ring-[#FF2732]/80 shadow-lg shadow-red-950/20 border-transparent' : 'border-zinc-900/60'}`}
+                        >
+                          {tier.isBest && (
+                            <span className="absolute top-3 right-3 bg-[#FF2732] text-white text-[8px] font-mono font-bold tracking-widest px-2.5 py-0.5 rounded-full uppercase">
+                              RECOMMENDED
+                            </span>
+                          )}
+
+                          <div className="space-y-4">
+                            <div>
+                              <h3 className="text-base font-bold text-white font-display mb-1">{tier.name}</h3>
+                              <p className="text-[10.5px] text-zinc-500 font-mono uppercase">{tier.status}</p>
+                            </div>
+
+                            <div className="flex items-baseline py-2 flex-wrap text-left">
+                              <span className="text-3xl font-black text-white font-display">{tier.price}</span>
+                              <span className="text-xs text-zinc-400 font-mono ml-1.5">/ month</span>
+                            </div>
+
+                            <div className="pt-4 border-t border-zinc-900 space-y-3 font-sans text-xs text-zinc-300 text-left">
+                              <div className="flex items-center space-x-2">
+                                <span className="text-[#FF2732] text-xs">✓</span>
+                                <span>{tier.screens}</span>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <span className="text-[#FF2732] text-xs">✓</span>
+                                <span>{tier.engine}</span>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <span className="text-[#FF2732] text-xs">✓</span>
+                                <span>{tier.audio}</span>
+                              </div>
+                              <div className="flex items-center space-x-2 text-zinc-550">
+                                <span>✓ Unlimited views & bookmarks</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="pt-6">
+                            <button
+                              onClick={() => {
+                                setActiveSubscriptionTier(tier.name);
+                                showNotification(`Your intelligence subscription shifted to: ${tier.name}! Enjoy unlimited access.`);
+                              }}
+                              className={`w-full py-2.5 px-4 rounded-xl text-xs font-black transition-all cursor-pointer ${isActivePlan ? 'bg-white text-black hover:bg-zinc-200' : tier.btnColor}`}
+                            >
+                              {isActivePlan ? "Your Active Plan" : "Select Subscription"}
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <>
               
               {/* INTERACTIVE VIDEO STREAMING CONTROLS OVERLAY HEADER (ACTIVE WHEN RECENT VIEW CLICKS SIMULATOR) */}
               {activeTrailerName && (
@@ -969,94 +1141,97 @@ export default function App() {
 
               </section>
 
-              {/* SEARCH ENGINE & CONFIGS ZONE FOR RECALIBRATION */}
-              <div className="p-5 rounded-2xl bg-[#0B0B0C] border border-zinc-900/60 shadow-lg space-y-4">
-                
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div>
-                    <h2 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5 font-display">
-                      <Sliders size={15} className="text-[#FF2732]" />
-                      Rec-Engine Vector Customizations
-                    </h2>
-                    <p className="text-[11px] text-zinc-400 mt-0.5">
-                      Recalibrate cosine space matrices instantly. Type search prompts or switch targets to view aligned candidates.
-                    </p>
-                  </div>
-
-                  {/* Limit sliding meter */}
-                  <div className="flex items-center space-x-3 shrink-0">
-                    <span className="text-[10px] font-mono text-zinc-400 uppercase">Output Candidates:</span>
-                    <input 
-                      type="range" 
-                      min="3" 
-                      max="12" 
-                      value={recommendationLimit}
-                      onChange={(e) => {
-                        const limit = Number(e.target.value);
-                        setRecommendationLimit(limit);
-                        calculateRecommendations(selectedMovieId, limit);
-                      }}
-                      className="w-24 accent-[#FF2732] h-1 bg-zinc-800 rounded-lg cursor-pointer"
-                    />
-                    <span className="text-xs font-mono font-bold text-[#FF2732] bg-[#FF2732]/10 px-2 rounded border border-[#FF2732]/20">
-                      {recommendationLimit}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Filter and selector Inputs */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3.5 border-t border-zinc-900/60">
-                  
-                  {/* Dynamic Catalog Select List */}
-                  <div className="md:col-span-2 space-y-1">
-                    <label className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest pl-1">Baseline Reference Node Selected:</label>
-                    <select
-                      value={selectedMovieId}
-                      onChange={(e) => {
-                        const id = Number(e.target.value);
-                        setSelectedMovieId(id);
-                        calculateRecommendations(id, recommendationLimit);
-                        showNotification(`Recalculated similarity alignments matching model ID #${id}`);
-                      }}
-                      className="w-full bg-[#111112] border border-zinc-900 rounded-lg py-2.5 px-3 text-xs text-zinc-200 focus:outline-none focus:border-[#FF2732] font-medium text-ellipsis overflow-hidden"
-                    >
-                      {filteredCatalog.length > 0 ? (
-                        filteredCatalog.map(m => (
-                          <option key={m.id} value={m.id} className="bg-zinc-950 font-sans">
-                            {m.title} ({m.year}) — Ratings: {m.rating} ★ ({m.genres[0]})
-                          </option>
-                        ))
-                      ) : (
-                        <option disabled>No items matched search inputs in repository</option>
-                      )}
-                    </select>
-                  </div>
-
-                  {/* Input Search box */}
-                  <div className="space-y-1">
-                    <label className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest pl-1">Narrow Down Catalog Items:</label>
-                    <div className="relative">
-                      <span className="absolute inset-y-0 left-3 flex items-center text-zinc-500">
-                        <Search size={14} />
-                      </span>
-                      <input 
-                        ref={searchInputRef}
-                        type="text" 
-                        placeholder="Search model, genre..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-[#111112] border border-zinc-900 rounded-lg py-2.5 pl-9 pr-14 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-[#FF2732] font-mono"
-                      />
-                      <span className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                        <kbd className="bg-zinc-900/80 border border-zinc-850 text-zinc-500 text-[9px] px-1.5 py-0.5 rounded font-mono font-bold leading-none select-none">
-                          Ctrl+K
-                        </kbd>
-                      </span>
+              {/* ADVANCED CALIBRATION DRAWER FOR PROGRESSIVE DISCLOSURE (UX SIMPLIFICATION) */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between bg-[#0B0B0C] border border-zinc-900 p-4 rounded-xl shadow-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 rounded-full bg-[#FF2732]/10 flex items-center justify-center text-[#FF2732]">
+                      <Sliders size={14} />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider font-display">Algorithmic Match Tuning</h4>
+                      <p className="text-[10px] text-zinc-400 font-sans">Calibrate similarity vectors, references, and matrix dot-products</p>
                     </div>
                   </div>
-
+                  <button 
+                    onClick={() => setShowTuning(!showTuning)}
+                    className="text-[10px] font-mono font-bold uppercase tracking-wider px-3.5 py-1.5 rounded-lg border border-zinc-800 hover:border-zinc-700 hover:text-white transition-colors bg-zinc-950 flex items-center space-x-1.5"
+                  >
+                    <span>{showTuning ? "Collapse Engine ✕" : "Tune Parameters ⚙️"}</span>
+                  </button>
                 </div>
 
+                {showTuning && (
+                  <div className="p-5 rounded-2xl bg-[#0B0B0C]/60 border border-zinc-900/80 shadow-lg space-y-4 animate-fade-in">
+                    
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-900 pb-3">
+                      <div>
+                        <h4 className="text-xs font-bold text-[#FF2732] uppercase tracking-wider font-mono">
+                          Vector Calibration Panel
+                        </h4>
+                        <p className="text-[10px] text-zinc-400">Modify cosine weight limits and matrix properties</p>
+                      </div>
+
+                      {/* Limit sliding meter */}
+                      <div className="flex items-center space-x-3 shrink-0">
+                        <span className="text-[9px] font-mono text-zinc-400 uppercase">Output Limit:</span>
+                        <input 
+                          type="range" 
+                          min="3" 
+                          max="12" 
+                          value={recommendationLimit}
+                          onChange={(e) => {
+                            const limit = Number(e.target.value);
+                            setRecommendationLimit(limit);
+                            calculateRecommendations(selectedMovieId, limit);
+                          }}
+                          className="w-24 accent-[#FF2732] h-1 bg-zinc-800 rounded-lg cursor-pointer"
+                        />
+                        <span className="text-xs font-mono font-bold text-[#FF2732] bg-[#FF2732]/10 px-2 rounded border border-[#FF2732]/20">
+                          {recommendationLimit}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      {/* Dynamic Catalog Select List */}
+                      <div className="flex-1 space-y-1">
+                        <label className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest pl-1">Baseline Reference Node Selected:</label>
+                        <select
+                          value={selectedMovieId}
+                          onChange={(e) => {
+                            const id = Number(e.target.value);
+                            setSelectedMovieId(id);
+                            calculateRecommendations(id, recommendationLimit);
+                            showNotification(`Recalculated similarity alignments matching model ID #${id}`);
+                          }}
+                          className="w-full bg-[#111112] border border-zinc-900 rounded-lg py-2 px-3 text-xs text-zinc-200 focus:outline-none focus:border-[#FF2732] font-medium text-ellipsis overflow-hidden"
+                        >
+                          {movies.length > 0 ? (
+                            movies.map(m => (
+                              <option key={m.id} value={m.id} className="bg-zinc-950 font-sans">
+                                {m.title} ({m.year}) — Ratings: {m.rating} ★ ({m.genres[0]})
+                              </option>
+                            ))
+                          ) : (
+                            <option disabled>No items matched search inputs in repository</option>
+                          )}
+                        </select>
+                      </div>
+
+                      {/* Toggle Math Inspector Inline button */}
+                      <div className="shrink-0 pt-4 md:pt-0">
+                        <button
+                          onClick={() => setShowMathInspector(!showMathInspector)}
+                          className="w-full md:w-auto text-[10px] font-mono uppercase bg-zinc-900/80 px-4 py-2 rounded-lg border border-zinc-800 hover:text-[#FF2732] hover:border-[#FF2732]/30 transition-all font-bold"
+                        >
+                          {showMathInspector ? "✕ Hide Matrix Proofs" : "⚡ Inspect Vector Matrix"}
+                        </button>
+                      </div>
+                    </div>
+
+                  </div>
+                )}
               </div>
 
               {/* MATH INSPECT ACCORDION MODULE */}
@@ -1153,21 +1328,23 @@ export default function App() {
                             </p>
                           </div>
 
-                          {/* Matched tags coefficients */}
-                          <div className="mt-4 pt-3.5 border-t border-zinc-900/60 space-y-2">
-                            <span className="text-[9px] font-mono text-[#FF2732] uppercase block font-bold tracking-wider">Overlapping similarity terms:</span>
-                            <div className="flex flex-wrap gap-1">
-                              {rec.matchedTerms.length > 0 ? (
-                                rec.matchedTerms.slice(0, 4).map((word) => (
-                                  <span key={word} className="bg-[#FF2732]/10 text-[#FF2732] border border-[#FF2732]/15 px-1.5 py-0.5 rounded text-[9.5px] font-mono">
-                                    #{word}
-                                  </span>
-                                ))
-                              ) : (
-                                <span className="text-[9px] text-zinc-650 italic">Generic terms aligned</span>
-                              )}
+                          {/* Matched tags coefficients (Shown only in Tuning Mode to simplify main UX) */}
+                          {showTuning && (
+                            <div className="mt-4 pt-3.5 border-t border-zinc-900/60 space-y-1.5">
+                              <span className="text-[9px] font-mono text-[#FF2732] uppercase block font-bold tracking-wider">Overlapping terms:</span>
+                              <div className="flex flex-wrap gap-1">
+                                {rec.matchedTerms.length > 0 ? (
+                                  rec.matchedTerms.slice(0, 3).map((word) => (
+                                    <span key={word} className="bg-[#FF2732]/10 text-[#FF2732] border border-[#FF2732]/15 px-1.5 py-0.5 rounded text-[9px] font-mono">
+                                      #{word}
+                                    </span>
+                                  ))
+                                ) : (
+                                  <span className="text-[9px] text-zinc-650 italic">Generic terms aligned</span>
+                                )}
+                              </div>
                             </div>
-                          </div>
+                          )}
 
                           {/* Beautiful action triggers */}
                           <div className="mt-4 pt-3.5 border-t border-zinc-900/60 flex items-center space-x-2">
@@ -1468,6 +1645,8 @@ export default function App() {
                 </div>
               </section>
 
+                </>
+              )}
             </div>
           )}
 
@@ -1506,8 +1685,19 @@ export default function App() {
                     />
                   ))
                 ) : (
-                  <div className="col-span-1 sm:col-span-4 text-center py-20 bg-[#0B0B0C] rounded-2xl border border-zinc-900/60 text-zinc-400 font-mono text-xs">
-                    No results found matching search string: "{searchQuery}"
+                  <div className="col-span-1 sm:col-span-4 text-center py-20 bg-[#0B0B0C] p-8 rounded-2xl border border-zinc-900/60 text-zinc-400 font-mono text-xs space-y-4">
+                    <span className="block text-zinc-500 font-mono">No matching movies found under current filters ({activeMediaService && `${activeMediaService}, `}{activeCategoryFilter}).</span>
+                    <button
+                      onClick={() => {
+                        setSearchQuery("");
+                        setActiveMediaService("");
+                        setActiveCategoryFilter("Movies");
+                        showNotification("Reset all search parameters, media channels, and category tags!");
+                      }}
+                      className="px-4 py-2 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 hover:text-[#FF2732] rounded-lg transition-colors cursor-pointer text-[10px] font-mono uppercase tracking-widest font-bold"
+                    >
+                      Clear Filters & Channels
+                    </button>
                   </div>
                 )}
               </div>
