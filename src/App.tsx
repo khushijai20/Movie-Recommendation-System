@@ -41,6 +41,90 @@ import AnalyticsTab from "./components/AnalyticsTab";
 import CodeExporterTab from "./components/CodeExporterTab";
 import InterviewSuiteTab from "./components/InterviewSuiteTab";
 
+// Helper function to return high quality, thematic poster/background images from Unsplash matching movie metadata
+export function getMoviePosterUrl(id: number, title: string, genres: string[] = []): string {
+  const name = title.toLowerCase();
+  
+  // Direct matches for prominent movies in our catalog to give high fidelity realistic posters
+  if (name.includes("toy story")) {
+    return "https://images.unsplash.com/photo-1608889175123-8ec330b86f84?auto=format&fit=crop&w=500&q=80"; // Bright 3D Toy Story-like action figures
+  }
+  if (name.includes("jumanji")) {
+    return "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=500&q=80"; // Mysterious jungle/board-game element
+  }
+  if (name.includes("goldeneye") || name.includes("james bond")) {
+    return "https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?auto=format&fit=crop&w=500&q=80"; // High-tech satellite night dish spy style
+  }
+  if (name.includes("heat")) {
+    return "https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=500&q=80"; // Moody LA city high-contrast night skyline
+  }
+  if (name.includes("casino")) {
+    return "https://images.unsplash.com/photo-1596838132731-3301c3fd4317?auto=format&fit=crop&w=500&q=80"; // Vegas casino dice chips closeup
+  }
+  if (name.includes("usual suspect")) {
+    return "https://images.unsplash.com/photo-1509281373149-e957c6296406?auto=format&fit=crop&w=500&q=80"; // Noir criminal mystery scene
+  }
+  if (name.includes("star wars") || name.includes("empire strikes")) {
+    if (name.includes("empire")) {
+      return "https://images.unsplash.com/photo-1482862549707-f63cb32c5fd9?auto=format&fit=crop&w=500&q=80"; // Snowy planetary peaks
+    }
+    return "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=500&q=80"; // Outer space colorful galaxy space opera
+  }
+  if (name.includes("jurassic")) {
+    return "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=500&q=80"; // Lush tropical prehistoric rainforest jungle
+  }
+  if (name.includes("matrix")) {
+    return "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=500&q=80"; // Hacking code terminal rain green glowing
+  }
+  if (name.includes("totoro")) {
+    return "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=500&q=80"; // Beautiful magical dark studio ghibli-like forest
+  }
+  if (name.includes("lion king") || name.includes("savanna") || name.includes("safari")) {
+    return "https://images.unsplash.com/photo-1516426122078-c23e76319801?auto=format&fit=crop&w=500&q=80"; // Majestic wild African savanna
+  }
+  if (name.includes("pulp fiction")) {
+    return "https://images.unsplash.com/photo-1594909122845-11baa439b7bf?auto=format&fit=crop&w=500&q=80"; // Dark retro record & smoke cinematography
+  }
+  if (name.includes("fight club")) {
+    return "https://images.unsplash.com/photo-1495360010541-f48722b34f7d?auto=format&fit=crop&w=500&q=80"; // Gritty boxer stance fist
+  }
+  if (name.includes("forrest gump") || name.includes("gump")) {
+    return "https://images.unsplash.com/photo-1444858291040-58f756a3bdd6?auto=format&fit=crop&w=500&q=80"; // Beautiful countryside park bench tree canopy
+  }
+  if (name.includes("godfather")) {
+    return "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=500&q=80"; // Gritty retro microphone or classic dark desk shadows
+  }
+
+  // Genre based fallback lists for dynamic & relevant aesthetic grouping (guarantees perfect posters for 100% of custom titles)
+  if (genres.includes("Animation") || genres.includes("Children")) {
+    return `https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=500&q=80`; // Colorful magical dreaming
+  }
+  if (genres.includes("Sci-Fi") || genres.includes("Fantasy")) {
+    return `https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=500&q=80`; // Sci-fi deep networking lines glowing
+  }
+  if (genres.includes("Crime") || genres.includes("Thriller") || genres.includes("Mystery")) {
+    return `https://images.unsplash.com/photo-1509281373149-e957c6296406?auto=format&fit=crop&w=500&q=80`; // Dark silhouette criminal alleys
+  }
+  if (genres.includes("Action") || genres.includes("Adventure")) {
+    return `https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=500&q=80`; // High-energy cinematic explore mountain peak
+  }
+  if (genres.includes("Horror")) {
+    return `https://images.unsplash.com/photo-1505635552518-3448ff116af3?auto=format&fit=crop&w=500&q=80`; // Horror spooky woods fog at night
+  }
+  if (genres.includes("Comedy")) {
+    return `https://images.unsplash.com/photo-1527224857830-43a7acc85260?auto=format&fit=crop&w=500&q=80`; // Fun bright yellow beach bubble pop colors
+  }
+  if (genres.includes("Drama") || genres.includes("Romance")) {
+    return `https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=500&q=80`; // Sunset cinematic director's tape/clapper board
+  }
+  if (genres.includes("Documentary") || genres.includes("History")) {
+    return `https://images.unsplash.com/photo-1478720143022-909947d16c3e?auto=format&fit=crop&w=500&q=80`; // Vintage movie camera and projector
+  }
+
+  // Generically beautiful fallback movie theater seat photo if all else fails
+  return `https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=500&q=80`;
+}
+
 // High fidelity Netflix-inspired custom movie card components
 interface PremiumMovieCardProps {
   key?: any;
@@ -91,34 +175,44 @@ function PremiumMovieCard({
 
   return (
     <div 
-      className={`relative h-64 rounded-xl border p-4 flex flex-col justify-between overflow-hidden cursor-pointer select-none transition-all duration-300 hover:scale-[1.03] hover:border-netflix-red group hover:shadow-xl hover:shadow-[#E50914]/10 ${getStylizedMovieGradients(title)} ${highlight ? 'ring-2 ring-netflix-red border-transparent bg-zinc-950' : ''}`}
+      className={`relative h-64 rounded-xl border p-4 flex flex-col justify-between overflow-hidden cursor-pointer select-none transition-all duration-300 hover:scale-[1.03] hover:border-[#FF2732] group hover:shadow-xl hover:shadow-[#FF2732]/10 ${getStylizedMovieGradients(title)} ${highlight ? 'ring-2 ring-[#FF2732] border-transparent bg-zinc-950' : ''}`}
       onClick={onSelect}
     >
+      {/* Cinematic Movie Poster Image backdrop */}
+      <img 
+        src={getMoviePosterUrl(id, title, genres)} 
+        alt={title}
+        referrerPolicy="no-referrer"
+        className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-35 transition-all duration-300 pointer-events-none z-0"
+      />
+      {/* Dark gradient overlay covering the card bottom-to-top */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none z-0" />
+
       <div className="absolute top-2.5 left-2.5 flex items-center space-x-1.5 z-10">
-        <span className="w-5 h-5 bg-[#E50914] text-white font-black text-[12px] flex items-center justify-center rounded-sm shadow-md font-display select-none">
+        <span className="w-5 h-5 bg-[#FF2732] text-white font-black text-[12px] flex items-center justify-center rounded-sm shadow-md font-display select-none">
           N
         </span>
-        <span className="bg-black/70 backdrop-blur-sm text-[8px] text-zinc-300 px-1.5 py-0.5 rounded uppercase font-semibold border border-zinc-700/40">
+        <span className="bg-black/70 backdrop-blur-sm text-[8px] text-zinc-350 px-1.5 py-0.5 rounded uppercase font-semibold border border-zinc-700/40">
           Original
         </span>
       </div>
 
-      <span className="absolute top-3 right-3 font-mono text-[10px] text-[#E50914] font-bold tracking-wider opacity-90 z-10">
+      <span className="absolute top-3 right-3 font-mono text-[10px] text-[#FF2732] font-bold tracking-wider opacity-90 z-10">
         {year}
       </span>
 
       {/* Decorative center ambient orb */}
-      <div className="absolute -right-10 -bottom-10 w-28 h-28 rounded-full bg-gradient-to-tr from-transparent via-[#E50914]/5 to-transparent blur-xl pointer-events-none group-hover:via-[#E50914]/15 transition-all duration-300" />
+      <div className="absolute -right-10 -bottom-10 w-28 h-28 rounded-full bg-gradient-to-tr from-transparent via-[#FF2732]/5 to-transparent blur-xl pointer-events-none group-hover:via-[#FF2732]/15 transition-all duration-300 z-0" />
 
       {/* Title Segment & Genres */}
-      <div className="pt-9 flex-1 flex flex-col justify-center select-text">
-        <h5 className="text-sm font-bold text-white tracking-tight leading-snug group-hover:text-[#E50914] transition-colors font-display line-clamp-2">
+      <div className="pt-9 flex-1 flex flex-col justify-center select-text z-10">
+        <h5 className="text-sm font-bold text-white tracking-tight leading-snug group-hover:text-[#FF2732] transition-colors font-display line-clamp-2">
           {title}
         </h5>
         
         <div className="flex flex-wrap gap-1 mt-2">
           {genres.slice(0, 2).map((g) => (
-            <span key={g} className="bg-black/40 text-[9px] text-zinc-350 px-2 py-0.5 rounded border border-zinc-850/60 font-mono">
+            <span key={g} className="bg-black/60 text-[9px] text-zinc-300 px-2 py-0.5 rounded border border-zinc-850/60 font-mono">
               {g}
             </span>
           ))}
@@ -138,7 +232,7 @@ function PremiumMovieCard({
         <div className="flex items-center space-x-1.5" onClick={(e) => e.stopPropagation()}>
           <button 
             onClick={onToggleBookmark}
-            className={`p-1.5 rounded bg-zinc-900 border border-zinc-800 transition-all ${isBookmarked ? 'text-[#E50914] bg-[#E50914]/10 border-[#E50914]/20' : 'text-zinc-500 hover:text-white'}`}
+            className={`p-1.5 rounded bg-zinc-950 border border-zinc-800 transition-all cursor-pointer ${isBookmarked ? 'text-[#FF2732] bg-[#FF2732]/10 border-[#FF2732]/20' : 'text-zinc-500 hover:text-white hover:bg-zinc-900'}`}
             title={isBookmarked ? "Remove bookmark" : "Bookmark this movie"}
           >
             <Bookmark size={11} className={isBookmarked ? "fill-current" : ""} />
@@ -146,7 +240,7 @@ function PremiumMovieCard({
           
           <button 
             onClick={() => onPlay(title)}
-            className="text-[9px] font-mono font-bold uppercase py-1 px-2.5 bg-[#18181A] hover:bg-[#E50914] text-[#E50914] hover:text-white rounded border border-zinc-850 transition-all"
+            className="text-[9px] font-mono font-bold uppercase py-1 px-2.5 bg-[#18181A] hover:bg-[#FF2732] text-[#FF2732] hover:text-white rounded border border-zinc-850 transition-all cursor-pointer"
           >
             Play
           </button>
@@ -939,9 +1033,18 @@ export default function App() {
                   {/* Left Column (Hero wide dynamic player) */}
                   <div className="lg:col-span-8 relative rounded-2xl overflow-hidden min-h-[300px] border border-zinc-900 bg-gradient-to-r from-[#170a0a] via-[#09090a] to-[#0A0D10] flex flex-col justify-between p-6 md:p-8 shadow-lg group">
                     
+                    {/* Wide Cinematic Backdrop Image */}
+                    <img 
+                      src={getMoviePosterUrl(activeBaseMovie.id, activeBaseMovie.title, activeBaseMovie.genres)} 
+                      alt={activeBaseMovie.title}
+                      referrerPolicy="no-referrer"
+                      className="absolute inset-0 w-full h-full object-cover opacity-25 group-hover:opacity-35 transition-opacity duration-500 pointer-events-none z-0"
+                    />
+
                     {/* Subtle art overlays */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent z-0 pointer-events-none" />
-                    <div className="absolute -right-12 -top-12 w-48 h-48 rounded-full bg-gradient-to-tr from-[#FF2732]/10 via-transparent to-transparent blur-3xl group-hover:bg-[#FF2732]/20 transition-all duration-700 pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/60 to-transparent z-0 pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent z-0 pointer-events-none" />
+                    <div className="absolute -right-12 -top-12 w-48 h-48 rounded-full bg-gradient-to-tr from-[#FF2732]/10 via-transparent to-transparent blur-3xl group-hover:bg-[#FF2732]/20 transition-all duration-700 pointer-events-none z-0" />
 
                     <div className="relative z-10 space-y-3.5 max-w-xl">
                       
@@ -1302,12 +1405,22 @@ export default function App() {
                           key={rec.movie.id} 
                           className="bg-[#0B0B0C]/90 border border-zinc-900 hover:border-[#FF2732]/40 rounded-2xl overflow-hidden shadow-md duration-300 transition-all hover:scale-[1.02] flex flex-col justify-between p-5 relative group"
                         >
+                          {/* Cinematic Backdrop Image */}
+                          <img 
+                            src={getMoviePosterUrl(rec.movie.id, rec.movie.title, rec.movie.genres)} 
+                            alt={rec.movie.title}
+                            referrerPolicy="no-referrer"
+                            className="absolute inset-0 w-full h-full object-cover opacity-15 group-hover:opacity-30 transition-opacity duration-300 pointer-events-none z-0"
+                          />
+                          {/* Black ambient overlay to guarantee high-contrast text readability */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/85 to-[#0B0B0C]/40 pointer-events-none z-0" />
+
                           {/* High fidelity green matchmaking score indicator */}
-                          <div className="absolute top-4 right-4 bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 text-[10px] font-mono font-black px-2 py-1 rounded">
+                          <div className="absolute top-4 right-4 bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 text-[10px] font-mono font-black px-2 py-1 rounded z-10">
                             {Math.round(rec.score * 100)}% Match
                           </div>
 
-                          <div className="space-y-3 pt-2">
+                          <div className="space-y-3 pt-2 z-10 relative">
                             <div>
                               <span className="text-[9px] font-mono uppercase text-[#FF2732] font-bold tracking-wider">Recommended Rank #{index + 1}</span>
                               <h4 className="text-md font-bold text-white mt-1 group-hover:text-[#FF2732] transition-colors">
@@ -1317,7 +1430,7 @@ export default function App() {
 
                             <div className="flex flex-wrap gap-1">
                               {rec.movie.genres.map(g => (
-                                <span key={g} className="bg-black/40 text-[9.5px] px-2.5 py-0.5 rounded text-zinc-400 border border-zinc-900 font-mono">
+                                <span key={g} className="bg-black/60 text-[9.5px] px-2.5 py-0.5 rounded text-zinc-300 border border-zinc-900 font-mono">
                                   {g}
                                 </span>
                               ))}
@@ -1330,7 +1443,7 @@ export default function App() {
 
                           {/* Matched tags coefficients (Shown only in Tuning Mode to simplify main UX) */}
                           {showTuning && (
-                            <div className="mt-4 pt-3.5 border-t border-zinc-900/60 space-y-1.5">
+                            <div className="mt-4 pt-3.5 border-t border-zinc-900/60 space-y-1.5 z-10 relative">
                               <span className="text-[9px] font-mono text-[#FF2732] uppercase block font-bold tracking-wider">Overlapping terms:</span>
                               <div className="flex flex-wrap gap-1">
                                 {rec.matchedTerms.length > 0 ? (
@@ -1347,10 +1460,10 @@ export default function App() {
                           )}
 
                           {/* Beautiful action triggers */}
-                          <div className="mt-4 pt-3.5 border-t border-zinc-900/60 flex items-center space-x-2">
+                          <div className="mt-4 pt-3.5 border-t border-zinc-900/60 flex items-center space-x-2 z-10 relative">
                             <button
                               onClick={() => triggerSimulationPlay(rec.movie.title)}
-                              className="flex-grow bg-[#151517] hover:bg-[#FF2732] text-zinc-300 hover:text-white text-xs font-semibold py-2 rounded-lg transition-colors"
+                              className="flex-grow bg-[#151517] hover:bg-[#FF2732] text-zinc-300 hover:text-white text-xs font-semibold py-2 rounded-lg transition-colors cursor-pointer"
                             >
                               Play Preview
                             </button>
@@ -1361,7 +1474,7 @@ export default function App() {
                                 calculateRecommendations(rec.movie.id, recommendationLimit);
                                 showNotification(`Selected: "${rec.movie.title}" as baseline coordinate model.`);
                               }}
-                              className="bg-zinc-950 border border-zinc-900 hover:bg-zinc-900 text-zinc-400 p-2.5 rounded-lg"
+                              className="bg-zinc-950 border border-zinc-900 hover:bg-zinc-900 text-zinc-400 p-2.5 rounded-lg cursor-pointer"
                               title="Recalibrate matching matrix around this movie"
                             >
                               <ChevronRight size={13} />
